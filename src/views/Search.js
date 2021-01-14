@@ -10,14 +10,11 @@ import {
 } from "reactstrap";
 import CarouselHeader from "components/CarouselHeader/CarouselHeader.js";
 import bg1 from "assets/img/bg4.jpg";
-import { BrowserRouter as Router,
-    Switch,
-    Route,
+import { BrowserRouter as
     Link
 } from 'react-router-dom';
 
 function Search(){
-
     return (
         <>
         <CarouselHeader/>
@@ -27,7 +24,7 @@ function Search(){
                 <Card className="card mb-6" style={{width: '100%'}}>
                 <div className="row no-gutters">
                     <div className="col-md-5">
-                    <img width="100%" height="100%" src={bg1} alt="Card image cap" />
+                        <img width="100%" height="100%" src={bg1} alt="Card image cap" />
                     </div>
                     <div className="col-md-7">
                     <CardBody>

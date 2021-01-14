@@ -7,33 +7,30 @@ import {
   Row,
   Col,
   Button,
+  InputGroup,
+  InputGroupText,
+  InputGroupAddon,
+  Input,
 } from "reactstrap";
-import CarouselHeader from "components/CarouselHeader/CarouselHeader.js";
 import PanelHeader from "components/PanelHeader/PanelHeader.js";
-import contoh from "assets/img/mike.jpg";
-import bg3 from "assets/img/bg1.jpg";
-import bg2 from "assets/img/bg3.jpg";
-import bg1 from "assets/img/bg4.jpg";
-import { BrowserRouter as Router,
-  Switch,
-  Route,
-  Link
-} from 'react-router-dom';
-import { baseURL } from '../Utils/api';
+import {Link} from "react-router-dom";
+import { baseURL, IMAGE_URL } from '../Utils/api';
 import axios from "axios";
+import { FaMapMarkerAlt, FaInfoCircle } from 'react-icons/fa';
 
 function ListWisata(){
   const [listLocation, setListLocation] = React.useState();
   const [galery, setGalery] = React.useState();
   const [distance, setDistance] = React.useState();
+  const [search, setSearch] = React.useState("");
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
+    setLoading(true)
     axios
       .get(`${baseURL}locations`, { data: { userLong: 1.104, userLat: 1.102 } })
       .then((res) => {
         console.log(res);
-        console.log(res.data);
         setListLocation(res.data['locations']);
         setGalery(res.data['galery']);
         setDistance(res.data[2]);
@@ -46,36 +43,76 @@ function ListWisata(){
     return () => {};
   }, []);
 
+  const onSubmit = (e) => {
+    e.preventDefault();
+    axios
+      .get(`${baseURL}locations/search`, { params: { search }})
+      .then((res) => {
+        console.log(res);
+        console.log(res.data);
+        setListLocation(res.data.search_result);
+        setGalery(res.data['galery']);
+        setDistance(res.data[2]);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
+  };
+
   return (
     <>
       <PanelHeader
         content={
           <div className="header text-center">
-            <h2 className="title">Selamat datang di DolanKuy</h2>
-            <p className="category">
-              DolanKuy adalah Aplikasi referensi wisata yang ada di Indonesia, 
-              berbasis 3 platform yaitu mobile, website dan desktop. dengan DolanKuy 
-              user bisa melihat list wisata dan akomodasi pada tempat wisata dengan 
-              membandingkan review dari user lain
-            </p>
+              <Row style={{display: 'flex',  justifyContent:'center', alignItems:'center'}}>
+                  <Col md={8} xs={12}>
+                      <Row>
+                          <Col md={6} xs={12} style={{justifyContent:'center', alignItems:'center', paddingTop: '70px'}}>
+                            <h2 className="title" style={{textAlign:"left"}}>Mau liburan kemana nih kamu?</h2>
+                            <p className="category" style={{textAlign:"left", marginBottom:"30px"}}>
+                              Cari tujuan wisata kamu dengan DolanKuy
+                            </p>
+                            <form>
+                              <InputGroup className="no-border">
+                                <Input placeholder="Cari tujuan kamu" onChange={(e) => setSearch(e.target.value)}/>
+                                  <InputGroupAddon addonType="append">
+                                    <InputGroupText>
+                                      <i className="now-ui-icons ui-1_zoom-bold" onClick={onSubmit}/>
+                                    </InputGroupText>
+                                  </InputGroupAddon>
+                              </InputGroup>
+                            </form>
+                          </Col>
+                          <Col md={2} xs={0}/>
+                          <Col md={4} xs={12}>
+                            <img style={{width: '100%'}}
+                                src={require("assets/img/mobil.png")}
+                            />
+                          </Col>
+                      </Row>
+                  </Col>
+              </Row>
           </div>
         }
       />
       <div className="content">
         <Row style={{display: 'flex',  justifyContent:'center', alignItems:'center'}}>
-          <Col md={8} xs={12}>
+          <Col md={8} xs={12} style={{margin:"0", padding:"0"}}>
             {loading ? (<h1>Loading</h1>) : listLocation?.map((location) => (
             <Card className="card mb-6" style={{width: '100%'}}>
               <div className="row no-gutters">
-                <div className="col-md-5">
-                  <img width="100%" height="100%" src={bg1} alt="Card image cap" />
+                <div className="col-md-5" style={{display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden'}}>
+                  <img height="210px" style={{flexShrink: 0, minWidth: '100%', minHeight: '100%'}} src={IMAGE_URL + location.image} alt="Image" />
                 </div>
                 <div className="col-md-7">
                   <CardBody>
-                    <CardTitle>{location.name}</CardTitle>
-                    <CardText>{location.description}</CardText>
-                    <Link id="buttonCard" to={`/admin/details/${location.id}`}>
-                        <Button id="buttonCard" color="primary" block>Details</Button>
+                    <CardTitle><h5 style={{fontWeight:'600'}}>{location.name}</h5></CardTitle>
+                    <CardText style={{overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis"}}><FaInfoCircle />{location.description}</CardText>
+                    <CardText style={{overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis"}}><FaMapMarkerAlt />{location.address}</CardText>
+                    <Link to={`/layouts/details/${location.id}`}>
+                      <Button id="buttonCard" color="primary" block>Details</Button>
                     </Link>
                   </CardBody>
                 </div>
